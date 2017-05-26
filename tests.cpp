@@ -81,14 +81,62 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     // std::cout << "bye bye" << std::endl;
 
 
-    // Set all pins manual mode
+//              J504
+//            ---------
+// fp_gpio<0> | 1 | 2 | fp_gpio<1>
+//            ---------
+// fp_gpio<2> | 3 | 4 | fp_gpio<3>
+//            ---------
+// fp_gpio<4> | 5 | 6 | fp_gpio<5>
+//            ---------
+// fp_gpio<6> | 7 | 8 | fp_gpio<7>
+//            ---------
+//        gnd | 9 | 10| gnd
+//            ---------
+
+    // When mentioning pin X I refer to the physical one.
+    /******* TEST 1*************/
+    // Set all pins manual mode 
+    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+    // // Set all four pins to be output pins
+    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+    // // Manually set all GPIO pins high
+    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0xff);
+
+    /******* TEST 2*************/
+    // // Set all pins in manual mode 
+    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+    // // Set all pins to be output pins
+    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+    // // Manually set 2 GPIO pin high
+    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x2);
+
+    /******* TEST 3*************/
+    // // Set all pins in manual mode 
+    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+    // // Set all pins to be output pins
+    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+    // // Manually set GPIO pins 1 and 2 to high
+    // // 0x30 in hex = 0011 0000 in binary
+    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x3);
+
+    /******* TEST 4*************/
+    // Set all pins in manual mode 
     usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
 
-    // Set all four pins to be output pins
+    // Set all pins to be output pins
     usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
 
-    // Manually set all GPIO pins high
-    usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0xff);
+    // Manually set GPIO pins 1 and 2 to low
+    // 0x30 in hex = 0011 0000 in binary
+    usrp->set_gpio_attr(gpio_bank, "OUT", 0x00 , 0x3);    
+
 
     return EXIT_SUCCESS;
 }

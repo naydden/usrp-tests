@@ -1,10 +1,6 @@
-Building UHD Applications using CMake
-=====================================
+** Testing UHD with a USRP B210 **
 
-This directory contains a tiny example of a UHD-based application.
-Unlike the other examples, it is completely independent of the UHD
-source tree and can be compiled from any path as long as UHD is
-currently installed on the current machine.
+UHD-based testing application.
 
 To try it out, run these commands:
 $ mkdir build/ # Creates a new build directory
