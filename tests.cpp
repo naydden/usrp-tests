@@ -32,111 +32,127 @@
 namespace po = boost::program_options;
 
 int UHD_SAFE_MAIN(int argc, char *argv[]){
-    uhd::set_thread_priority_safe();
+	uhd::set_thread_priority_safe();
 
-    //variables to be set by po
-    std::string args;
+	//variables to be set by po
+	std::string args;
 
-    //setup the program options
-    po::options_description desc("Allowed options");
-    desc.add_options()
-        ("help", "help message")
-        ("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
-    ;
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+	//setup the program options
+	po::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "help message")
+		("args", po::value<std::string>(&args)->default_value(""), "multi uhd device address args")
+	;
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::notify(vm);
 
-    //print the help message
-    if (vm.count("help")){
-        std::cout << boost::format("Mini-example to initialize a USRP (args==%s).") % args << std::endl;
-        return ~0;
-    }
+	//print the help message
+	if (vm.count("help")){
+		std::cout << boost::format("Mini-example to initialize a USRP (args==%s).") % args << std::endl;
+		return ~0;
+	}
 
-    //create a usrp device
-    std::cout << std::endl;
-    std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
-    std::string gpio_bank = "FP0";
+	//create a usrp device
+	std::cout << std::endl;
+	std::cout << boost::format("Creating the usrp device with: %s...") % args << std::endl;
+	uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+	std::string gpio_bank = "FP0";
 
-    // // set up our masks, defining the pin numbers
-    // #define MAN_GPIO_MASK   (1 << 6)
-    // #define ATR_MASKS       MAN_GPIO_MASK
-    // #define ATR_CONTROL     MAN_GPIO_MASK
-    // #define GPIO_DDR        MAN_GPIO_MASK
+	// set up our masks, defining the pin numbers
+	#define MAN_GPIO_MASK   (1 << 6)
+	#define ATR_MASKS       MAN_GPIO_MASK
+	#define ATR_CONTROL     MAN_GPIO_MASK
+	#define GPIO_DDR        MAN_GPIO_MASK
 
-    // // assume an existing USRP device handle, called "usrp_x300"
-    // // now, let's do the basic ATR setup
-    // std::cout << ATR_CONTROL << std::endl;
-    // std::cout << ATR_MASKS << std::endl;
-    // std::cout << GPIO_DDR << std::endl;
-    // std::cout << std::endl;
-    // usrp->set_gpio_attr("FP0", "CTRL", ATR_CONTROL, ATR_MASKS);
-    // usrp->set_gpio_attr("FP0", "DDR", GPIO_DDR, ATR_MASKS);
-    // // // let's manually set GPIO4 high
-    // usrp->set_gpio_attr("FP0", "OUT", 1, MAN_GPIO_MASK);
-    
-    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    // std::cout << usrp->get_gpio_attr("FP0", "OUT") << std::endl;
-    // std::cout << "bye bye" << std::endl;
+	//              J504
+	//            ---------
+	// fp_gpio<0> | 1 | 2 | fp_gpio<1>
+	//            ---------
+	// fp_gpio<2> | 3 | 4 | fp_gpio<3>
+	//            ---------
+	// fp_gpio<4> | 5 | 6 | fp_gpio<5>
+	//            ---------
+	// fp_gpio<6> | 7 | 8 | fp_gpio<7>
+	//            ---------
+	//        gnd | 9 | 10| gnd
+	//            ---------
 
+	// When mentioning pin X I refer to the physical one.
+	// las argument is the mask and represents to which bits to apply the value (third argument)
+	/******* TEST 1*************/
+	// Set all pins manual mode 
+	// usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
 
-//              J504
-//            ---------
-// fp_gpio<0> | 1 | 2 | fp_gpio<1>
-//            ---------
-// fp_gpio<2> | 3 | 4 | fp_gpio<3>
-//            ---------
-// fp_gpio<4> | 5 | 6 | fp_gpio<5>
-//            ---------
-// fp_gpio<6> | 7 | 8 | fp_gpio<7>
-//            ---------
-//        gnd | 9 | 10| gnd
-//            ---------
+	// // Set all four pins to be output pins
+	// usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
 
-    // When mentioning pin X I refer to the physical one.
-    /******* TEST 1*************/
-    // Set all pins manual mode 
-    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
-
-    // // Set all four pins to be output pins
-    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
-
-    // // Manually set all GPIO pins high
-    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0xff);
-
-    /******* TEST 2*************/
-    // // Set all pins in manual mode 
-    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
-
-    // // Set all pins to be output pins
-    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
-
-    // // Manually set 2 GPIO pin high
-    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x2);
-
-    /******* TEST 3*************/
-    // // Set all pins in manual mode 
-    // usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
-
-    // // Set all pins to be output pins
-    // usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
-
-    // // Manually set GPIO pins 1 and 2 to high
-    // // 0x30 in hex = 0011 0000 in binary
-    // usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x3);
-
-    /******* TEST 4*************/
-    // Set all pins in manual mode 
-    usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
-
-    // Set all pins to be output pins
-    usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
-
-    // Manually set GPIO pins 1 and 2 to low
-    // 0x30 in hex = 0011 0000 in binary
-    usrp->set_gpio_attr(gpio_bank, "OUT", 0x00 , 0x3);    
+	// // Manually set all GPIO pins high
+	// usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0xff);
 
 
-    return EXIT_SUCCESS;
+	/******* TEST 2*************/
+	// // Set all pins in manual mode 
+	// usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+	// // Set all pins to be output pins
+	// usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+	// // Manually set 2 GPIO pin high
+	// usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x2);
+
+
+	/******* TEST 3*************/
+	// // Set all pins in manual mode 
+	// usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+	// // Set all pins to be output pins
+	// usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+	// // Manually set GPIO pins 1 and 2 to high
+	// // 0x30 in hex = 0011 0000 in binary
+	// usrp->set_gpio_attr(gpio_bank, "OUT", 0xff, 0x3);
+
+
+	/******* TEST 4*************/
+	// // Set all pins in manual mode 
+	// usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+	// // Set all pins to be output pins
+	// usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+	// // Manually set GPIO pins 1 and 2 to high
+	// // 0x30 in hex = 0011 0000 in binary
+	// usrp->set_gpio_attr(gpio_bank, "OUT", 0xff , 0x3);
+
+
+	/******* TEST 5*************/
+	// // Set all pins in manual mode 
+	// usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+	// // Set all pins to be output pins
+	// usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+	// // Manually set GPIO pins 1,3 and 5 to high
+	// // 0x15 in hex = 0001 0101 in binary
+	// usrp->set_gpio_attr(gpio_bank, "OUT", 0xff , 0x15);
+
+
+	/******* TEST 6*************/
+	// Set all pins in manual mode 
+	usrp->set_gpio_attr(gpio_bank, "CTRL", 0x00, 0xff);
+
+	// Set all pins to be output pins
+	usrp->set_gpio_attr(gpio_bank, "DDR", 0xff, 0xff);
+
+	// Manually set GPIO pins 1,2,3,4 to high
+	// 0xf0 in hex = 1111 0000 in binary
+	usrp->set_gpio_attr(gpio_bank, "OUT", 0xff , 0xf);
+
+	std::cout << "OUT: " << usrp->get_gpio_attr(gpio_bank, "OUT") << std::endl;
+	std::cout << "DDR: " << usrp->get_gpio_attr(gpio_bank, "DDR") << std::endl;
+	std::cout << "CTRL: " << usrp->get_gpio_attr(gpio_bank, "CTRL") << std::endl;
+
+
+	return EXIT_SUCCESS;
 }
